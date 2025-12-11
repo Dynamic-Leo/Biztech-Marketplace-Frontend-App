@@ -1,74 +1,160 @@
-// API Service Layer
-// This file contains all API calls to the backend
-
 import { User, Listing, Lead, ValuationRequest } from '../types';
 
+// Use the environment variable defined in .env, fallback to localhost
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
 
-// Generic API call function
+// --- DATA ADAPTERS (CamelCase <-> Snake_Case) ---
+
+// Prepare data for the Backend (snake_case)
+const transformUserToBackend = (data: any) => {
+  const payload: any = { ...data };
+  
+  // Map specific fields
+  if (data.fullName) payload.name = data.fullName;
+  if (data.phone) payload.mobile = data.phone;
+  if (data.agreedToCommission !== undefined) payload.agreed_commission = data.agreedToCommission;
+  if (data.financialMeans) payload.financial_means = data.financialMeans;
+  
+  // Cleanup frontend-only keys
+  delete payload.fullName;
+  delete payload.phone;
+  delete payload.agreedToCommission;
+  delete payload.financialMeans;
+  delete payload.confirmPassword;
+  delete payload.companyName; 
+  
+  return payload;
+};
+
+// Process data from the Backend (camelCase)
+const transformUserFromBackend = (user: any): User => {
+  if (!user) return user;
+  return {
+    ...user,
+    // Ensure frontend types match backend response
+    agreedToCommission: user.agreed_commission,
+    financialMeans: user.financial_means,
+  };
+};
+
+// --- CORE API CLIENT ---
+
 async function apiCall<T>(
   endpoint: string,
   options?: RequestInit
 ): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...options?.headers,
-    },
-    ...options,
-  });
+  const token = localStorage.getItem('biztech_token');
+  
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    ...options?.headers,
+  };
 
-  if (!response.ok) {
-    throw new Error(`API Error: ${response.statusText}`);
+  if (token) {
+    (headers as any)['Authorization'] = `Bearer ${token}`;
   }
 
-  return response.json();
+  // Ensure endpoint starts with slash and combine with Base URL
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const url = `${API_BASE_URL}${cleanEndpoint}`;
+
+  try {
+    const response = await fetch(url, {
+      ...options,
+      headers,
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      // Global 401 Handler: Session Expired
+      if (response.status === 401) {
+        localStorage.removeItem('biztech_token');
+        localStorage.removeItem('biztech_user');
+      }
+      throw new Error(data.message || `API Error: ${response.statusText}`);
+    }
+
+    return data;
+  } catch (error: any) {
+    throw new Error(error.message || 'Network connection failed');
+  }
 }
 
-// Authentication APIs
+// --- AUTHENTICATION API ---
+
 export const authAPI = {
   login: async (email: string, password: string) => {
-    return apiCall<{ user: User; token: string }>('/auth/login', {
+    const response = await apiCall<{ success: boolean; user: any; token: string }>('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
+    
+    return {
+      ...response,
+      user: transformUserFromBackend(response.user)
+    };
   },
 
-  register: async (userData: Partial<User>) => {
-    return apiCall<{ user: User; token: string }>('/auth/register', {
+  register: async (userData: any) => {
+    const payload = transformUserToBackend(userData);
+    
+    // Returns { success: true, message: string, email: string } - No token yet
+    return apiCall<{ success: boolean; message: string; email: string }>('/auth/register', {
       method: 'POST',
-      body: JSON.stringify(userData),
+      body: JSON.stringify(payload),
     });
+  },
+
+  verifyEmail: async (email: string, otp: string) => {
+    const response = await apiCall<{ 
+      success: boolean; 
+      message: string; 
+      token?: string; 
+      user?: any;
+      requireApproval?: boolean; 
+    }>('/auth/verify-email', {
+      method: 'POST',
+      body: JSON.stringify({ email, otp }),
+    });
+
+    if (response.user) {
+      response.user = transformUserFromBackend(response.user);
+    }
+    return response;
   },
 
   logout: async () => {
-    return apiCall('/auth/logout', { method: 'POST' });
+    return Promise.resolve(); 
   },
 };
 
-// Listings APIs
+// --- LISTINGS API ---
 export const listingsAPI = {
   getAll: async (filters?: Record<string, any>) => {
     const queryParams = new URLSearchParams(filters).toString();
-    return apiCall<Listing[]>(`/listings?${queryParams}`);
+    const response = await apiCall<{ success: boolean; count: number; data: Listing[] }>(`/listings?${queryParams}`);
+    return response.data;
   },
 
   getById: async (id: string) => {
-    return apiCall<Listing>(`/listings/${id}`);
+    const response = await apiCall<{ success: boolean; data: Listing }>(`/listings/${id}`);
+    return response.data;
   },
 
   create: async (listingData: Partial<Listing>) => {
-    return apiCall<Listing>('/listings', {
+    return apiCall<{ success: boolean; data: Listing }>('/listings', {
       method: 'POST',
       body: JSON.stringify(listingData),
-    });
+    }).then(res => res.data);
   },
 
   update: async (id: string, listingData: Partial<Listing>) => {
-    return apiCall<Listing>(`/listings/${id}`, {
+    return apiCall<{ success: boolean; data: Listing }>(`/listings/${id}`, {
       method: 'PUT',
       body: JSON.stringify(listingData),
-    });
+    }).then(res => res.data);
   },
 
   delete: async (id: string) => {
@@ -76,72 +162,66 @@ export const listingsAPI = {
   },
 };
 
-// Leads APIs
+// --- LEADS API ---
 export const leadsAPI = {
   create: async (leadData: Partial<Lead>) => {
-    return apiCall<Lead>('/leads', {
+    return apiCall<{ success: boolean; data: Lead }>('/leads', {
       method: 'POST',
       body: JSON.stringify(leadData),
-    });
+    }).then(res => res.data);
   },
 
-  getByAgent: async (agentId: string) => {
-    return apiCall<Lead[]>(`/leads/agent/${agentId}`);
+  getByAgent: async () => {
+    const response = await apiCall<{ success: boolean; count: number; data: Lead[] }>(`/agent/leads`);
+    return response.data;
   },
 
   updateStatus: async (leadId: string, status: string) => {
-    return apiCall<Lead>(`/leads/${leadId}/status`, {
-      method: 'PATCH',
+    return apiCall<{ success: boolean; data: Lead }>(`/agent/leads/${leadId}`, {
+      method: 'PUT',
       body: JSON.stringify({ status }),
-    });
+    }).then(res => res.data);
   },
 };
 
-// Valuation APIs
+// --- VALUATION API ---
 export const valuationAPI = {
   submit: async (valuationData: Partial<ValuationRequest>) => {
-    return apiCall<ValuationRequest>('/valuations', {
+    return apiCall<{ success: boolean; message: string; data: ValuationRequest }>('/valuation', {
       method: 'POST',
       body: JSON.stringify(valuationData),
-    });
+    }).then(res => res.data);
   },
 };
 
-// Admin APIs
+// --- ADMIN API ---
 export const adminAPI = {
   assignListingToAgent: async (listingId: string, agentId: string) => {
-    return apiCall(`/admin/listings/${listingId}/assign`, {
+    return apiCall('/admin/assign-agent', {
       method: 'POST',
-      body: JSON.stringify({ agentId }),
+      body: JSON.stringify({ listingId, agentId }),
     });
   },
 
   getPendingListings: async () => {
-    return apiCall<Listing[]>('/admin/listings/pending');
+    return apiCall<{ success: boolean; count: number; data: Listing[] }>('/admin/pending-listings')
+      .then(res => res.data);
   },
 
   createAgent: async (agentData: Partial<User>) => {
-    return apiCall<User>('/admin/agents', {
+    return apiCall('/admin/create-agent', {
       method: 'POST',
       body: JSON.stringify(agentData),
     });
   },
 };
 
-// Payment APIs
+// --- PAYMENT API ---
 export const paymentAPI = {
-  createSubscription: async (subscriptionData: {
-    userId: string;
-    tier: string;
-    amount: number;
-  }) => {
+  createSubscription: async (subscriptionData: { listingId: string; amount: number; }) => {
     return apiCall('/payments/subscribe', {
       method: 'POST',
       body: JSON.stringify(subscriptionData),
     });
-  },
-
-  verifyPayment: async (paymentId: string) => {
-    return apiCall(`/payments/verify/${paymentId}`);
   },
 };

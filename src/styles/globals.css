@@ -1,6 +1,4 @@
 @import "tailwindcss";
-
-/* Import Google Fonts - BizTech Typography System */
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Darker+Grotesque:wght@400;500;600;700;900&display=swap');
 
 @layer base {

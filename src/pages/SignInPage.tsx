@@ -2,30 +2,47 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { UserRole } from '../types';
-import { TestingInfo } from '../components/TestingInfo';
 
 export const SignInPage: React.FC = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
+  
+  // UI State
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    role: 'buyer' as UserRole,
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+    setLoading(true);
     
     try {
-      // Mock login - in production this would validate against backend
-      await login(formData.email, formData.password, formData.role);
-      // Redirect to appropriate dashboard based on role
-      navigate(`/dashboard/${formData.role}`);
-    } catch (error) {
-      console.error('Login failed:', error);
-      alert('Login failed. Please try again.');
+      // Call the login API through context
+      await login(formData.email, formData.password);
+      
+      // Determine redirection based on the user object stored in localStorage
+      // We read from storage here because state updates in Context are async
+      const storedUser = localStorage.getItem('biztech_user');
+      
+      if (storedUser) {
+        const user = JSON.parse(storedUser);
+        if (user.role) {
+          navigate(`/dashboard/${user.role}`);
+        } else {
+          navigate('/'); // Fallback
+        }
+      }
+    } catch (err: any) {
+      console.error('Login failed:', err);
+      // Show the exact error message from the backend API
+      setError(err.message || 'Invalid credentials. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -44,37 +61,18 @@ export const SignInPage: React.FC = () => {
           <p style={{ color: '#6B7280' }}>Sign in to access your dashboard</p>
         </div>
 
-        {/* Form Card */}
+        {/* Form Container */}
         <div className="bg-white rounded-lg p-8 shadow-lg">
           <h2 className="mb-2" style={{ color: '#0D1B2A' }}>Sign In</h2>
           <p className="mb-6" style={{ color: '#6B7280' }}>Enter your credentials to continue</p>
 
-          {/* Testing Info Banner */}
-          <TestingInfo />
+          {error && (
+            <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded text-sm">
+              {error}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Role Selector (For Testing) */}
-            <div>
-              <label className="block text-sm mb-2" style={{ color: '#374151' }}>
-                Select Role (Testing)
-              </label>
-              <select
-                value={formData.role}
-                onChange={(e) => setFormData({ ...formData, role: e.target.value as UserRole })}
-                className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-all"
-                style={{
-                  borderColor: '#E5E7EB',
-                  color: '#374151'
-                }}
-              >
-                <option value="admin">Admin</option>
-                <option value="agent">Agent</option>
-                <option value="seller">Seller</option>
-                <option value="buyer">Buyer</option>
-              </select>
-            </div>
-
-            {/* Email */}
             <div>
               <label className="block text-sm mb-2" style={{ color: '#374151' }}>
                 Email Address
@@ -85,15 +83,11 @@ export const SignInPage: React.FC = () => {
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-all"
-                style={{
-                  borderColor: '#E5E7EB',
-                  color: '#374151'
-                }}
+                style={{ borderColor: '#E5E7EB', color: '#374151' }}
                 placeholder="you@company.com"
               />
             </div>
 
-            {/* Password */}
             <div>
               <div className="flex items-center justify-between mb-2">
                 <label className="block text-sm" style={{ color: '#374151' }}>
@@ -110,10 +104,7 @@ export const SignInPage: React.FC = () => {
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-all pr-12"
-                  style={{
-                    borderColor: '#E5E7EB',
-                    color: '#374151'
-                  }}
+                  style={{ borderColor: '#E5E7EB', color: '#374151' }}
                   placeholder="Enter your password"
                 />
                 <button
@@ -127,19 +118,15 @@ export const SignInPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Sign In Button */}
             <button
               type="submit"
-              className="w-full py-3 rounded-lg transition-all hover:opacity-90"
-              style={{
-                backgroundColor: '#0D1B2A',
-                color: 'white'
-              }}
+              disabled={loading}
+              className="w-full py-3 rounded-lg transition-all hover:opacity-90 disabled:opacity-50"
+              style={{ backgroundColor: '#0D1B2A', color: 'white' }}
             >
-              Sign In
+              {loading ? 'Signing In...' : 'Sign In'}
             </button>
 
-            {/* Divider */}
             <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t" style={{ borderColor: '#E5E7EB' }}></div>
@@ -149,16 +136,11 @@ export const SignInPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Create Account Button */}
             <Link to="/register">
               <button
                 type="button"
                 className="w-full py-3 rounded-lg border-2 transition-all hover:bg-opacity-5"
-                style={{
-                  borderColor: '#2EC4B6',
-                  color: '#2EC4B6',
-                  backgroundColor: 'transparent'
-                }}
+                style={{ borderColor: '#2EC4B6', color: '#2EC4B6', backgroundColor: 'transparent' }}
               >
                 Create an Account
               </button>
@@ -166,7 +148,6 @@ export const SignInPage: React.FC = () => {
           </form>
         </div>
 
-        {/* Footer */}
         <p className="text-center mt-6 text-sm" style={{ color: '#6B7280' }}>
           By signing in, you agree to our{' '}
           <Link to="/terms" style={{ color: '#2EC4B6' }}>Terms of Service</Link>

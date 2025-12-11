@@ -41,6 +41,7 @@ The content is organized as follows:
 </file_summary>
 
 <directory_structure>
+.gitignore
 index.html
 package.json
 src/App.tsx
@@ -133,6 +134,10 @@ vite.config.ts
 <files>
 This section contains the contents of the repository's files.
 
+<file path=".gitignore">
+node_modules
+</file>
+
 <file path="index.html">
 <!doctype html>
 <html lang="en">
@@ -162,10 +167,6 @@ This section contains the contents of the repository's files.
     "preview": "vite preview"
   },
   "dependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-router-dom": "^6.28.0",
-    "lucide-react": "^0.487.0",
     "@radix-ui/react-accordion": "^1.2.3",
     "@radix-ui/react-alert-dialog": "^1.1.6",
     "@radix-ui/react-aspect-ratio": "^1.1.2",
@@ -193,21 +194,27 @@ This section contains the contents of the repository's files.
     "@radix-ui/react-toggle-group": "^1.1.2",
     "@radix-ui/react-tooltip": "^1.1.8",
     "class-variance-authority": "^0.7.1",
-    "react-day-picker": "^8.10.1",
-    "embla-carousel-react": "^8.6.0",
-    "recharts": "^2.15.2",
     "cmdk": "^1.1.1",
-    "vaul": "^1.1.2",
-    "react-hook-form": "^7.55.0",
+    "embla-carousel-react": "^8.6.0",
     "input-otp": "^1.4.2",
-    "react-resizable-panels": "^2.1.7",
+    "lucide-react": "^0.487.0",
     "next-themes": "^0.4.6",
-    "sonner": "^2.0.3"
+    "react": "^18.3.1",
+    "react-day-picker": "^8.10.1",
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.55.0",
+    "react-resizable-panels": "^2.1.7",
+    "react-router-dom": "^6.28.0",
+    "recharts": "^2.15.2",
+    "sonner": "^2.0.3",
+    "vaul": "^1.1.2"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "^4.1.17",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.4",
+    "tailwindcss": "^4.1.17",
     "typescript": "~5.6.2",
     "vite": "^6.0.3"
   }
@@ -408,7 +415,7 @@ export function ImageWithFallback(props: React.ImgHTMLAttributes<HTMLImageElemen
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Building2, Mail, Phone, MapPin } from 'lucide-react';
-import logo from 'figma:asset/803cc2ffb6349e8daa522fcf852a00da8323a916.png';
+import logo from '../assets/803cc2ffb6349e8daa522fcf852a00da8323a916.png';
 
 export const Footer: React.FC = () => {
   return (
@@ -508,7 +515,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Building2, Menu, X, User, LogOut, Settings } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import logo from 'figma:asset/803cc2ffb6349e8daa522fcf852a00da8323a916.png';
+import logo from '../assets/803cc2ffb6349e8daa522fcf852a00da8323a916.png';
 
 export const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
@@ -11578,10 +11585,11 @@ interface ImportMeta {
 <file path="vite.config.ts">
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(),tailwindcss()],
 });
 </file>
 
