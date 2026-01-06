@@ -87,6 +87,8 @@ const transformListingToBackend = (data: any) => {
 
 // --- CORE API CLIENT ---
 
+
+
 async function apiCall<T>(
   endpoint: string,
   options?: RequestInit
@@ -215,24 +217,47 @@ export const listingsAPI = {
 };
 
 // --- LEADS API ---
+export const agentAPI = {
+  // Fetch listings assigned to the logged-in agent
+  getAssignedListings: async () => {
+    const response = await apiCall<{ success: boolean; data: any[] }>('/listings/agent/assigned');
+    return response.data.map(transformListingFromBackend);
+  },
+
+  // Update deliverable status for Premium listings (Sale Pack, Financials, etc.)
+  updateDeliverable: async (listingId: string, deliverable: string, status: boolean) => {
+    return apiCall(`/listings/${listingId}/deliverables`, {
+      method: 'PATCH',
+      body: JSON.stringify({ [deliverable]: status }),
+    });
+  }
+};
+
 export const leadsAPI = {
-  create: async (leadData: Partial<Lead>) => {
+  create: async (leadData: { listingId: string; message: string }) => {
     return apiCall<{ success: boolean; data: Lead }>('/leads', {
       method: 'POST',
       body: JSON.stringify(leadData),
-    }).then(res => res.data);
+    });
   },
 
-  getByAgent: async () => {
-    const response = await apiCall<{ success: boolean; count: number; data: Lead[] }>(`/agent/leads`);
+  getBuyerEnquiries: async () => {
+    const response = await apiCall<{ success: boolean; data: Lead[] }>('/leads/my-enquiries');
     return response.data;
   },
 
+  // Agent: Fetch leads for assigned listings
+  getByAgent: async () => {
+    const response = await apiCall<{ success: boolean; count: number; data: any[] }>(`/agent/leads`);
+    return response.data;
+  },
+
+  // Agent: Update status (New -> Contacted -> Negotiating -> Closed)
   updateStatus: async (leadId: string, status: string) => {
     return apiCall<{ success: boolean; data: Lead }>(`/agent/leads/${leadId}`, {
       method: 'PUT',
       body: JSON.stringify({ status }),
-    }).then(res => res.data);
+    });
   },
 };
 
