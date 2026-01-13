@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, BarChart3, ShieldCheck, Clock, Users, MessageSquare, Loader2, CheckCircle2, Circle } from 'lucide-react';
+import { FileText, BarChart3, ShieldCheck, Users, MessageSquare, Loader2, CheckCircle2, Circle } from 'lucide-react';
 import { DashboardHeader } from '../components/DashboardHeader';
 import { agentAPI, leadsAPI } from '../services/api';
-import { Listing, Lead } from '../types';
+import { Listing} from '../types';
 import { toast } from 'sonner';
 
 export const AgentDashboard: React.FC = () => {

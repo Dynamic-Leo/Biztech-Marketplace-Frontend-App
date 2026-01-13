@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { MapPin, BarChart3, Heart, Share2, AlertCircle, MessageSquare, ArrowLeft, Loader2, Lock, ShieldCheck } from 'lucide-react';
+import { MapPin, BarChart3, MessageSquare, ArrowLeft, Loader2, Lock, ShieldCheck } from 'lucide-react';
 import { listingsAPI } from '../services/api';
 import { useAuth } from '../hooks/useAuth';
 import { Listing } from '../types';

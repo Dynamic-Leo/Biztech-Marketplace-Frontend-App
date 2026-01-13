@@ -5,9 +5,7 @@ import {
   Shield, 
   TrendingUp, 
   Users, 
-  FileText, 
   CheckCircle,
-  Building2,
   Lock,
   Award,
   ArrowRight

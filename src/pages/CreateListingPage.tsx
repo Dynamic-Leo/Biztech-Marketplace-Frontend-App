@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Building2, DollarSign, FileText, Lock, Info, CheckCircle, Loader2, AlertTriangle, CreditCard } from 'lucide-react';
+import { FileText, Lock, Info, Loader2,  CreditCard } from 'lucide-react';
 import { listingsAPI, paymentAPI } from '../services/api';
 import { toast } from 'sonner';
 
@@ -66,7 +66,6 @@ export const CreateListingPage: React.FC = () => {
   };
 
   const industries = ['Food & Beverage', 'Technology', 'Retail', 'Healthcare', 'Education', 'Real Estate', 'Manufacturing', 'Services', 'Other'];
-  const regions = ['Dubai Marina', 'Downtown Dubai', 'Business Bay', 'JLT', 'DIFC', 'JBR', 'Other'];
 
   return (
     <div className="min-h-screen py-12 px-4 bg-[#F9FAFB]">

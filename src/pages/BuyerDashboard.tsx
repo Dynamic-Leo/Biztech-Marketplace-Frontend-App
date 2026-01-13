@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Heart, MessageSquare, Building2, Clock, CheckCircle, Loader2 } from 'lucide-react';
+import { Search, MessageSquare, Building2, Loader2 } from 'lucide-react';
 import { DashboardHeader } from '../components/DashboardHeader';
 import { leadsAPI } from '../services/api';
 import { useAuth } from '../hooks/useAuth';

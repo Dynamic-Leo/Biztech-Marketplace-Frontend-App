@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Building2, Mail, Phone, MapPin } from 'lucide-react';
+import { Mail, Phone, MapPin } from 'lucide-react';
 import logo from '../assets/803cc2ffb6349e8daa522fcf852a00da8323a916.png';
 
 export const Footer: React.FC = () => {

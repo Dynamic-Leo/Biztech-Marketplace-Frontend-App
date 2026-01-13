@@ -119,7 +119,7 @@ export const ValuationPage: React.FC = () => {
                         style={{ 
                           backgroundColor: step <= currentStep ? '#2EC4B6' : '#E5E7EB',
                           color: step <= currentStep ? 'white' : '#9CA3AF',
-                          ringColor: step === currentStep ? 'rgba(46, 196, 182, 0.3)' : undefined
+                          borderColor: step === currentStep ? 'rgba(46, 196, 182, 0.3)' : undefined
                         }}
                       >
                         {step}

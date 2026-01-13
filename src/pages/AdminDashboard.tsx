@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Building2, UserCog, TrendingUp, CheckCircle, Clock, XCircle, RefreshCw, X, Mail, Lock, User as UserIcon, Eye } from 'lucide-react';
+import { Users, Building2, UserCog, TrendingUp, CheckCircle, Clock, RefreshCw, X, Mail, Lock, User as UserIcon, Eye } from 'lucide-react';
 import { DashboardHeader } from '../components/DashboardHeader';
 import { adminAPI } from '../services/api';
 import { User, Listing } from '../types';
