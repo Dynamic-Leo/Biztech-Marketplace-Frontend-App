@@ -1,67 +1,66 @@
 name: Deploy to Namecheap cPanel
 
 on:
-  push:
-    branches:
-      - main  # Or 'master', depending on your default branch name
+    push:
+        branches:
+            - main # Or 'master', depending on your default branch name
 
 jobs:
-  web-deploy:
-    name: Build and Deploy
-    runs-on: ubuntu-latest
+    web-deploy:
+        name: Build and Deploy
+        runs-on: ubuntu-latest
 
-    steps:
-      # 1. Get the latest code
-      - name: 🚚 Get latest code
-        uses: actions/checkout@v4
+        steps:
+            # 1. Get the latest code
+            - name: 🚚 Get latest code
+              uses: actions/checkout@v4
 
-      # 2. Setup Node.js
-      - name: 🟢 Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
+            # 2. Setup Node.js
+            - name: 🟢 Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+                  cache: "npm"
 
-      # 3. Install Dependencies
-      - name: 📦 Install Dependencies
-        run: npm ci
+            # 3. Install Dependencies
+            - name: 📦 Install Dependencies
+              run: npm ci
 
-      # 4. Build the Project
-      # We pass the API URL here so it gets baked into the static files
-      - name: 🏗️ Build Project
-        run: npm run build
-        env:
-          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+            # 4. Build the Project
+            # We pass the API URL here so it gets baked into the static files
+            - name: 🏗️ Build Project
+              run: npm run build
+              env:
+                  VITE_API_URL: ${{ secrets.VITE_API_URL }}
 
-      # 5. Create .htaccess for React Router
-      # This ensures 404s don't happen on page refresh
-      - name: ⚙️ Generate .htaccess
-        run: |
-          cat <<EOF > ./dist/.htaccess
-          <IfModule mod_rewrite.c>
-            RewriteEngine On
-            RewriteBase /
-            RewriteRule ^index\.html$ - [L]
-            RewriteCond %{REQUEST_FILENAME} !-f
-            RewriteCond %{REQUEST_FILENAME} !-d
-            RewriteCond %{REQUEST_FILENAME} !-l
-            RewriteRule . /index.html [L]
-          </IfModule>
-          EOF
+            # 5. Create .htaccess for React Router
+            # This ensures 404s don't happen on page refresh
+            - name: ⚙️ Generate .htaccess
+              run: |
+                  cat <<EOF > ./dist/.htaccess
+                  <IfModule mod_rewrite.c>
+                    RewriteEngine On
+                    RewriteBase /
+                    RewriteRule ^index\.html$ - [L]
+                    RewriteCond %{REQUEST_FILENAME} !-f
+                    RewriteCond %{REQUEST_FILENAME} !-d
+                    RewriteCond %{REQUEST_FILENAME} !-l
+                    RewriteRule . /index.html [L]
+                  </IfModule>
+                  EOF
 
-      # 6. Upload to Namecheap via FTP
-      - name: 📂 Sync files via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          # This is the folder LOCALLY that contains the build files
-          local-dir: ./dist/
-          # This is the folder ON THE SERVER.
-          # If your FTP account is mapped directly to public_html, use /
-          # If your FTP account sees root, use /public_html/
-          server-dir: /public_html/
-          # Be careful: This removes files on the server that aren't in your build
-          # Recommended for React apps to remove old hashed JS files
-          dangerous-clean-slate: true
+            # 6. Upload to Namecheap via FTP
+            - name: 📂 Sync files via FTP
+              uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+              with:
+                  server: ${{ secrets.FTP_SERVER }}
+                  username: ${{ secrets.FTP_USERNAME }}
+                  password: ${{ secrets.FTP_PASSWORD }}
+                  local-dir: ./dist/
+                  server-dir: /public_html/
+                  # New settings below:
+                  protocol: ftp
+                  port: 21
+                  security: false # Allows fallback if strict FTPS fails
+                  timeout: 30000 # Increase timeout to 30 seconds
+                  dangerous-clean-slate: true
