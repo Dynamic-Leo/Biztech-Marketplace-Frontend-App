@@ -60,6 +60,6 @@ jobs:
           protocol: ftp
           port: 21
           # security: false helps bypass the strict certificate check causing timeouts
-          security: false 
+          security: strict
           timeout: 30000
           dangerous-clean-slate: true
