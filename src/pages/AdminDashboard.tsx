@@ -35,10 +35,16 @@ export const AdminDashboard: React.FC = () => {
     try {
       const [statsData, usersData, listingsData, agentsData] = await Promise.all([
         adminAPI.getStats(),
-        adminAPI.getUsers(userFilter === 'pending' ? { role: 'seller', status: 'pending' } : {}),
+
+        adminAPI.getUsers( userFilter === 'pending'
+            ? { role: 'seller', status: 'pending', is_verified: true }
+            : { role: 'seller', is_verified: true }
+        ),
+
         adminAPI.getPendingListings(),
-        adminAPI.getUsers({ role: 'agent' })
+        adminAPI.getUsers({ role: 'agent', is_verified: true }),
       ]);
+
 
       setStats(statsData);
       setUsers(usersData);

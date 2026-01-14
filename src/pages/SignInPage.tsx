@@ -20,43 +20,39 @@ export const SignInPage: React.FC = () => {
     e.preventDefault();
     setError('');
     setLoading(true);
-    
+
     try {
-      // Call the login API through context
       await login(formData.email, formData.password);
-      
-      // Determine redirection based on the user object stored in localStorage
-      // We read from storage here because state updates in Context are async
+
       const storedUser = localStorage.getItem('biztech_user');
-      
       if (storedUser) {
         const user = JSON.parse(storedUser);
-        if (user.role) {
-          navigate(`/dashboard/${user.role}`);
-        } else {
-          navigate('/'); // Fallback
-        }
+        navigate(`/dashboard/${user.role}`);
       }
     } catch (err: any) {
-      console.error('Login failed:', err);
-      // Show the exact error message from the backend API
-      setError(err.message || 'Invalid credentials. Please try again.');
+      // 🔐 EMAIL NOT VERIFIED → Verify Email page
+      if (
+        err.status === 403 &&
+        err.message?.toLowerCase().includes('verify')
+      ) {
+        navigate('/verify-email', {
+          state: { email: formData.email },
+        });
+        return;
+      }
+
+      setError(err.message || 'Invalid credentials');
     } finally {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="min-h-screen py-12 px-4 flex items-center justify-center" style={{ backgroundColor: '#E8EDF2' }}>
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-2 mb-6">
-            <div className="w-10 h-10 flex items-center justify-center rounded" style={{ backgroundColor: '#0D1B2A' }}>
-              <span className="text-xl" style={{ color: '#2EC4B6' }}>B</span>
-            </div>
-            <span className="text-xl" style={{ color: '#0D1B2A' }}>Biz Marketplace</span>
-          </div>
           <h1 className="mb-2" style={{ color: '#0D1B2A' }}>Welcome Back</h1>
           <p style={{ color: '#6B7280' }}>Sign in to access your dashboard</p>
         </div>
@@ -121,7 +117,7 @@ export const SignInPage: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 rounded-lg transition-all hover:opacity-90 disabled:opacity-50"
+              className="w-full py-3 rounded-lg transition-all hover:opacity-90 disabled:opacity-5 hover:cursor-pointer"
               style={{ backgroundColor: '#0D1B2A', color: 'white' }}
             >
               {loading ? 'Signing In...' : 'Sign In'}
@@ -139,8 +135,7 @@ export const SignInPage: React.FC = () => {
             <Link to="/register">
               <button
                 type="button"
-                className="w-full py-3 rounded-lg border-2 transition-all hover:bg-opacity-5"
-                style={{ borderColor: '#2EC4B6', color: '#2EC4B6', backgroundColor: 'transparent' }}
+                className="w-full py-3 rounded-lg border-2 transition-all hover:bg-opacity-5 hover:cursor-pointer hover:bg-[#dbdbdb] border-[#E5E7EB] hover:border-[#c9c9c9]"
               >
                 Create an Account
               </button>

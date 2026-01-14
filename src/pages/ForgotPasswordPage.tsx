@@ -50,12 +50,6 @@ export const ForgotPasswordPage: React.FC = () => {
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-2 mb-6">
-            <div className="w-10 h-10 flex items-center justify-center rounded" style={{ backgroundColor: '#0D1B2A' }}>
-              <span className="text-xl" style={{ color: '#2EC4B6' }}>B</span>
-            </div>
-            <span className="text-xl" style={{ color: '#0D1B2A' }}>BizTech</span>
-          </div>
           <h1 className="mb-2" style={{ color: '#0D1B2A' }}>Reset Password</h1>
           <p style={{ color: '#6B7280' }}>Enter your email to receive reset instructions</p>
         </div>
@@ -88,7 +82,7 @@ export const ForgotPasswordPage: React.FC = () => {
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full py-3 rounded-lg transition-all hover:opacity-90"
+              className="w-full py-3 rounded-lg transition-all hover:opacity-90 hover:cursor-pointer"
               style={{
                 backgroundColor: '#0D1B2A',
                 color: 'white'
@@ -101,11 +95,11 @@ export const ForgotPasswordPage: React.FC = () => {
             <Link to="/signin">
               <button
                 type="button"
-                className="w-full py-3 rounded-lg border-2 transition-all hover:bg-opacity-5 flex items-center justify-center gap-2"
+                className="w-full py-3 rounded-lg border-2 transition-all hover:bg-opacity-5 flex items-center justify-center gap-2 hover:cursor-pointer hover:bg-[#dbdbdb] border-[#E5E7EB] hover:border-[#c9c9c9]"
                 style={{
-                  borderColor: '#E5E7EB',
-                  color: '#6B7280',
-                  backgroundColor: 'transparent'
+                  // borderColor: '#E5E7EB',
+                  // color: '#6B7280',
+                  // backgroundColor: 'transparent'
                 }}
               >
                 <ArrowLeft className="w-4 h-4" />

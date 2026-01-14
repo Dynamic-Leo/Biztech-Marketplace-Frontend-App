@@ -23,6 +23,8 @@ import { HowItWorksPage } from './pages/HowItWorksPage';
 import { PricingPage } from './pages/PricingPage';
 import { TermsPage } from './pages/TermsPage';
 import { PrivacyPage } from './pages/PrivacyPage';
+import { VerifyEmail } from './pages/VerifyEmail';
+import { ResetPassword } from './pages/ResetPassword';
 
 export default function App() {
   return (
@@ -36,6 +38,8 @@ export default function App() {
             <Route path="register" element={<RegisterPage />} />
             <Route path="signin" element={<SignInPage />} />
             <Route path="forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/reset-password/:token" element={<ResetPassword />} />
+            <Route path="/verify-email/:token" element={<VerifyEmail />} />
             <Route path="search" element={<SearchPage />} />
             <Route path="listing/:id" element={<ListingDetailPage />} />
             <Route path="valuation" element={<ValuationPage />} />
