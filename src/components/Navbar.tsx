@@ -45,14 +45,7 @@ export const Navbar: React.FC = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
-            <img src={logo} alt="BizTech Logo" className="w-8 h-8" />
-            <span className="metric" style={{ 
-              fontSize: '1.5rem', 
-              color: 'var(--color-primary)',
-              fontWeight: 700
-            }}>
-              Biz Marketplace
-            </span>
+            <img src={logo} alt="BizTech Logo" className="w-auto h-20" />
           </Link>
 
           {/* Desktop Navigation */}

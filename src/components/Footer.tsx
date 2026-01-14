@@ -11,12 +11,9 @@ export const Footer: React.FC = () => {
           {/* Company Info */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <img src={logo} alt="BizTech Logo" className="w-6 h-6" />
-              <span className="metric" style={{ fontSize: '1.25rem', fontWeight: 700 }}>
-                Biz Marketplace
-              </span>
+              <img src={logo} alt="BizTech Logo" className="w-auto h-20 bg-white rounded-[5px]" />
             </div>
-            <p className="text-sm opacity-80 mb-4">
+            <p className="text-sm opacity-80 mb-4 text-[#CCCCC1]">
               Global platform connecting businesses for partnerships, collaborations, and opportunities. Connect. Compete. Collaborate.
             </p>
             <div className="text-sm opacity-60">

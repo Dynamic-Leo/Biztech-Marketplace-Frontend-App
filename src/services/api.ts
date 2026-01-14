@@ -94,7 +94,7 @@ async function apiCall<T>(
   options?: RequestInit
 ): Promise<T> {
   const token = localStorage.getItem('biztech_token');
-  
+
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
@@ -105,32 +105,34 @@ async function apiCall<T>(
     (headers as any)['Authorization'] = `Bearer ${token}`;
   }
 
-  // Ensure endpoint starts with slash and combine with Base URL
-  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const cleanEndpoint = endpoint.startsWith('/')
+    ? endpoint
+    : `/${endpoint}`;
   const url = `${API_BASE_URL}${cleanEndpoint}`;
 
-  try {
-    const response = await fetch(url, {
-      ...options,
-      headers,
-    });
+  const response = await fetch(url, {
+    ...options,
+    headers,
+  });
 
-    const data = await response.json();
+  const data = await response.json();
 
-    if (!response.ok) {
-      // Global 401 Handler: Session Expired
-      if (response.status === 401) {
-        localStorage.removeItem('biztech_token');
-        localStorage.removeItem('biztech_user');
-      }
-      throw new Error(data.message || `API Error: ${response.statusText}`);
+  if (!response.ok) {
+    if (response.status === 401) {
+      localStorage.removeItem('biztech_token');
+      localStorage.removeItem('biztech_user');
     }
 
-    return data;
-  } catch (error: any) {
-    throw new Error(error.message || 'Network connection failed');
+    // 🔑 This enables Verify Email redirect
+    throw {
+      status: response.status,
+      message: data.message || response.statusText,
+    };
   }
+
+  return data;
 }
+
 
 // --- AUTHENTICATION API ---
 
@@ -280,11 +282,31 @@ export const adminAPI = {
   },
 
   // NEW: Get users (e.g. pending sellers)
-  getUsers: async (filters?: { role?: string; status?: string }) => {
-    const queryParams = new URLSearchParams(filters).toString();
-    const response = await apiCall<{ success: boolean; data: User[] }>(`/admin/users?${queryParams}`);
-    return response.data;
-  },
+  // getUsers: async (filters?: { role?: string; is_verified?: string }) => {
+  //   const queryParams = new URLSearchParams(filters).toString();
+  //   const response = await apiCall<{ success: boolean; data: User[] }>(`/admin/users?${queryParams}`);
+  //   return response.data;
+  // },
+  // NEW: Get users (with filters)
+getUsers: async (filters?: {
+  role?: string;
+  status?: string;
+  is_verified?: boolean;
+}) => {
+  const queryParams = new URLSearchParams();
+
+  if (filters?.role) queryParams.append('role', filters.role);
+  if (filters?.status) queryParams.append('status', filters.status);
+  if (filters?.is_verified !== undefined)
+    queryParams.append('is_verified', String(filters.is_verified));
+
+  const response = await apiCall<{ success: boolean; data: User[] }>(
+    `/admin/users?${queryParams.toString()}`
+  );
+
+  return response.data;
+},
+
 
   // NEW: Update user account status (Approve/Reject)
   updateUserStatus: async (userId: string, status: 'active' | 'rejected') => {

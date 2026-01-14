@@ -49,7 +49,7 @@ export const SearchPage: React.FC = () => {
       {/* Search Header */}
       <section className="py-12 px-4 bg-[#0D1B2A] text-white">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-8">Find Your Next Business</h2>
+          <h2 className="text-3xl font-bold text-center mb-8 text-white">Find Your Next Business</h2>
           
           <div className="max-w-5xl mx-auto space-y-4">
             <div className="relative">

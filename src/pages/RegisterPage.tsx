@@ -175,12 +175,6 @@ export const RegisterPage: React.FC = () => {
     <div className="min-h-screen py-12 px-4 flex items-center justify-center bg-[#E8EDF2]">
       <div className="w-full max-w-xl">
         <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-2 mb-6">
-            <div className="w-10 h-10 flex items-center justify-center rounded bg-[#0D1B2A]">
-              <span className="text-xl text-[#2EC4B6]">B</span>
-            </div>
-            <span className="text-xl text-[#0D1B2A] font-bold">BizTech</span>
-          </div>
           <h1 className="mb-2 text-2xl font-bold text-[#0D1B2A]">Join BizTech Today</h1>
           <p className="text-[#6B7280]">Connect with partners and opportunities worldwide</p>
         </div>
@@ -199,14 +193,14 @@ export const RegisterPage: React.FC = () => {
             <div className="flex p-1 bg-gray-100 rounded-lg">
               <button
                 type="button"
-                className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${role === 'seller' ? 'bg-white shadow text-[#0D1B2A]' : 'text-gray-500'}`}
+                className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${role === 'seller' ? 'bg-white shadow text-[#0D1B2A]' : 'text-gray-500'} hover:cursor-pointer hover:bg-[#dbdbdb]`}
                 onClick={() => setRole('seller')}
               >
                 I want to Sell
               </button>
               <button
                 type="button"
-                className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${role === 'buyer' ? 'bg-white shadow text-[#0D1B2A]' : 'text-gray-500'}`}
+                className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${role === 'buyer' ? 'bg-white shadow text-[#0D1B2A]' : 'text-gray-500'} hover:cursor-pointer hover:bg-[#dbdbdb]`}
                 onClick={() => setRole('buyer')}
               >
                 I want to Buy
