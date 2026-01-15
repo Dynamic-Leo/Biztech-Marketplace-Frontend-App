@@ -1,21 +1,17 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { Eye, EyeOff, Info, CheckCircle, ArrowLeft } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Eye, EyeOff, Info, CheckCircle } from 'lucide-react';
 import { authAPI } from '../services/api';
-import { useAuth } from '../contexts/AuthContext';
 import { UserRole } from '../types';
 
 export const RegisterPage: React.FC = () => {
-  const navigate = useNavigate();
-  const { setUserData } = useAuth();
   
   // --- STATE MANAGEMENT ---
-  const [step, setStep] = useState<'register' | 'otp' | 'pending_approval'>('register');
+  const [step, setStep] = useState<'register' | 'verification_sent'>('register');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   
   const [role, setRole] = useState<UserRole>('seller');
-  const [otp, setOtp] = useState('');
   
   const [formData, setFormData] = useState({
     fullName: '',
@@ -37,7 +33,7 @@ export const RegisterPage: React.FC = () => {
   };
   const isPasswordValid = passwordValidation.minLength && passwordValidation.hasNumber && passwordValidation.hasUppercase;
 
-  // --- 1. HANDLE REGISTRATION FORM SUBMISSION ---
+  // --- HANDLE REGISTRATION FORM SUBMISSION ---
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -65,32 +61,11 @@ export const RegisterPage: React.FC = () => {
         financialMeans: role === 'buyer' ? '100k-1M' : undefined 
       });
 
-      setStep('otp');
+      // Show verification email sent message
+      setStep('verification_sent');
     } catch (err: any) {
       console.error('Registration failed:', err);
       setError(err.message || 'Registration failed. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // --- 2. HANDLE OTP VERIFICATION ---
-  const handleVerifyOTP = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
-
-    try {
-      const response = await authAPI.verifyEmail(formData.email, otp);
-
-      if (response.token && response.user) {
-        setUserData(response.user, response.token);
-        navigate(`/dashboard/${role}`);
-      } else if (response.requireApproval) {
-        setStep('pending_approval');
-      }
-    } catch (err: any) {
-      setError(err.message || 'Invalid or expired OTP');
     } finally {
       setLoading(false);
     }
@@ -100,77 +75,50 @@ export const RegisterPage: React.FC = () => {
   //        RENDER VIEWS
   // ==========================
 
-  // --- VIEW 1: OTP INPUT FORM ---
-  if (step === 'otp') {
+  // --- VIEW: VERIFICATION EMAIL SENT ---
+  if (step === 'verification_sent') {
     return (
       <div className="min-h-screen py-12 px-4 flex items-center justify-center bg-[#E8EDF2]">
         <div className="w-full max-w-md bg-white rounded-lg p-8 shadow-lg text-center">
-          <h2 className="text-2xl font-bold text-[#0D1B2A] mb-4">Verify Your Email</h2>
-          <p className="text-gray-600 mb-6">
-            We've sent a 6-digit code to <strong>{formData.email}</strong>.
-          </p>
-
-          {error && <div className="mb-4 p-3 bg-red-100 text-red-700 rounded text-sm">{error}</div>}
-
-          <form onSubmit={handleVerifyOTP}>
-            <div className="mb-6">
-              <input
-                type="text"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                placeholder="Enter 6-digit OTP"
-                className="w-full px-4 py-3 text-center text-xl tracking-widest border rounded-lg focus:ring-2 focus:outline-none border-gray-300"
-                maxLength={6}
-                required
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3 rounded-lg text-white font-medium bg-[#0D1B2A] hover:opacity-90 disabled:opacity-50 mb-4"
-            >
-              {loading ? 'Verifying...' : 'Verify Email'}
-            </button>
-            <button
-              type="button"
-              onClick={() => setStep('register')}
-              className="text-[#6B7280] text-sm hover:underline flex items-center justify-center gap-1 mx-auto"
-            >
-              <ArrowLeft className="w-4 h-4" /> Back to Registration
-            </button>
-          </form>
-        </div>
-      </div>
-    );
-  }
-
-  // --- VIEW 2: PENDING APPROVAL (SELLERS) ---
-  if (step === 'pending_approval') {
-    return (
-      <div className="min-h-screen py-12 px-4 flex items-center justify-center bg-[#E8EDF2]">
-        <div className="w-full max-w-md bg-white rounded-lg p-8 shadow-lg text-center">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <CheckCircle className="w-8 h-8 text-green-600" />
+          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <CheckCircle className="w-8 h-8 text-blue-600" />
           </div>
-          <h2 className="text-2xl font-bold text-[#0D1B2A] mb-2">Registration Submitted</h2>
-          <p className="text-gray-600 mb-6">
-            Your email has been verified! Since you registered as a <strong>Seller</strong>, 
-            your account requires Admin approval before you can access the dashboard.
+          <h2 className="text-2xl font-bold text-[#0D1B2A] mb-2">Check Your Email</h2>
+          <p className="text-gray-600 mb-4">
+            A verification email has been sent to <strong>{formData.email}</strong>.
           </p>
+          <p className="text-gray-600 mb-6">
+            Please click the verification link in the email to activate your account.
+          </p>
+          
           <div className="bg-blue-50 p-4 rounded-lg mb-6 text-sm text-blue-800">
-            You will be notified via email once your account is active (typically within 24 hours).
+            <p className="font-medium mb-2">📧 Didn't receive the email?</p>
+            <ul className="text-left space-y-1">
+              <li>• Check your spam or junk folder</li>
+              <li>• Make sure you entered the correct email address</li>
+              <li>• Wait a few minutes and check again</li>
+            </ul>
           </div>
-          <Link to="/signin">
-            <button className="w-full py-3 rounded-lg border-2 border-[#0D1B2A] text-[#0D1B2A] hover:bg-gray-50 transition-all">
-              Return to Sign In
+          
+          <div className="space-y-3">
+            <button
+              onClick={() => setStep('register')}
+              className="w-full py-3 rounded-lg border-2 border-[#0D1B2A] text-[#0D1B2A] hover:bg-gray-50 transition-all"
+            >
+              Back to Registration
             </button>
-          </Link>
+            <Link to="/signin">
+              <button className="w-full py-3 rounded-lg bg-[#0D1B2A] text-white hover:opacity-90 transition-all">
+                Go to Sign In
+              </button>
+            </Link>
+          </div>
         </div>
       </div>
     );
   }
 
-  // --- VIEW 3: REGISTRATION FORM (DEFAULT) ---
+  // --- VIEW: REGISTRATION FORM (DEFAULT) ---
   return (
     <div className="min-h-screen py-12 px-4 flex items-center justify-center bg-[#E8EDF2]">
       <div className="w-full max-w-xl">
@@ -307,7 +255,7 @@ export const RegisterPage: React.FC = () => {
               disabled={loading}
               className="w-full py-3 rounded-lg text-white font-medium bg-[#0D1B2A] hover:opacity-90 disabled:opacity-50 transition-all"
             >
-              {loading ? 'Creating Account...' : 'Next'}
+              {loading ? 'Creating Account...' : 'Create Account'}
             </button>
 
             <div className="text-center text-sm text-gray-500">
