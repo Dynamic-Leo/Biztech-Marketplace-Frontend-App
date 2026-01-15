@@ -10,9 +10,7 @@ import {
 } from "../components/ui/card";
 import { Loader2, CheckCircle2, XCircle } from "lucide-react";
 import { toast } from "sonner";
-// import logoImage from '../assets/803cc2ffb6349e8daa522fcf852a00da8323a916.png';
 
-// const bizSetupLogo = logoImage;
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 export function VerifyEmail() {
