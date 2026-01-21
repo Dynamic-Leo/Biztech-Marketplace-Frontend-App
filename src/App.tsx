@@ -25,12 +25,14 @@ import { TermsPage } from './pages/TermsPage';
 import { PrivacyPage } from './pages/PrivacyPage';
 import { VerifyEmail } from './pages/VerifyEmail';
 import { ResetPassword } from './pages/ResetPassword';
+import { Toaster } from './components/ui/sonner'; 
 
 export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
         <ScrollToTop />
+        <Toaster />
         <Routes>
           <Route path="/" element={<MainLayout />}>
             {/* Public Routes */}
